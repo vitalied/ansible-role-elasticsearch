@@ -1,0 +1,5 @@
+---
+# roles file for vitalied.elasticsearch
+
+- src: hswong3i.java
+- src: vitalied.elasticsearch
