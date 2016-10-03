@@ -1,2 +1,7 @@
 ---
 # handlers file for vitalied.elasticsearch
+
+- name: restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
