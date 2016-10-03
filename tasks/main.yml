@@ -1,2 +1,66 @@
 ---
 # tasks file for vitalied.elasticsearch
+
+- name: apt-key add
+  apt_key:
+    url: "{{ elasticsearch_apt_key_url }}"
+    state: present
+  tags: vitalied.elasticsearch
+
+- name: apt-add-repository
+  apt_repository:
+    filename: elasticsearch
+    repo: "{{ elasticsearch_add_apt_repo }}"
+    state: present
+  tags: vitalied.elasticsearch
+
+- name: apt-get install
+  apt:
+    name: elasticsearch
+    state: latest
+  tags: vitalied.elasticsearch
+
+- name: prepare data dir
+  file:
+    dest: "{{ elasticsearch_data_dir }}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0755
+    state: directory
+  notify: restart elasticsearch
+  tags: vitalied.elasticsearch
+
+- name: prepare log dir
+  file:
+    dest: "{{ elasticsearch_log_dir }}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0755
+    state: directory
+  notify: restart elasticsearch
+  tags: vitalied.elasticsearch
+
+- name: copy templates
+  template:
+    src: etc/elasticsearch/elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0750
+  notify: restart elasticsearch
+  tags: vitalied.elasticsearch
+
+- name: install elasticsearch plugins
+  elasticsearch_plugin:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ elasticsearch_plugins }}"
+  notify: restart elasticsearch
+  tags: vitalied.elasticsearch
+
+- name: enable service
+  service:
+    name: elasticsearch
+    enabled: yes
+  notify: restart elasticsearch
+  tags: vitalied.elasticsearch
